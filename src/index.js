@@ -18,3 +18,5 @@ app.listen(port, () => {
     console.log('Server is up on port ' + port)
 })
 
+
+//./mongodb/bin/mongod.exe --dbpath=/Users/jabus/mongodb-data
