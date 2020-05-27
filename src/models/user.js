@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 
 
 const userSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
         required: true,
         trim: true
@@ -22,15 +22,6 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    age : {
-        type: Number,
-        default: 0,
-        validate(value) {
-            if (value < 0) {
-                throw new Error('Age must be a positive number')
-            }
-        }
-    },
     password: {
         type: String,
         required: true,
@@ -42,6 +33,12 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    friends: [{
+        type: mongoose.Schema.Types.ObjectId,
+    }],
+    savedSongs: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
     tokens: [{
         token: {
             type: String,
@@ -62,7 +59,7 @@ userSchema.methods.toJSON = function () {
 
 
 userSchema.methods.generateAuthToken = async function () {
-    const user = this 
+    const user = this
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
 
     user.tokens = user.tokens.concat({ token })
@@ -80,7 +77,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
     const isMatch = await bcrypt.compare(password, user.password)
 
-    if (!isMatch){
+    if (!isMatch) {
         throw new Error('Unable to login')
     }
 
@@ -88,7 +85,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 }
 
 //Has the plain text password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
     const user = this
 
     if (user.isModified('password')) {

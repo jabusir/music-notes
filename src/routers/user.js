@@ -54,21 +54,6 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 
-router.get('/users/:id', async (req, res) => {
-    const _id = req.params.id
-
-    try {
-        const user = await User.findById(_id)
-        if (!user) {
-            return res.status(404).send()
-        }
-
-        res.send(user)
-    } catch (e) {
-        res.status(500)
-    }
-})
-
 router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name', 'email', 'password', 'age']
@@ -83,7 +68,7 @@ router.patch('/users/me', auth, async (req, res) => {
         updates.forEach((update) => req.user[update] = req.body[update])
         await user.save()
 
-        res.send(user)
+        res.send(req.user)
     } catch (e) {
         res.status(400).send()
     }

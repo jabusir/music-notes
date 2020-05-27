@@ -19,4 +19,5 @@ app.listen(port, () => {
 })
 
 
-//./mongodb/bin/mongod.exe --dbpath=/Users/jabus/mongodb-data
+
+// ./\mongodb/bin/mongod.exe --dbpath=./mongodb-data
