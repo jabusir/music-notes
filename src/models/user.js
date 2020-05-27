@@ -36,9 +36,25 @@ const userSchema = new mongoose.Schema({
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
     }],
+    songsRecieved: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
+    songsGiven: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
+    songsLiked: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
+    songsDisliked: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
     savedSongs: [{
         type: mongoose.Schema.Types.ObjectId
     }],
+    clout: {
+        type: Number,
+        default: 0
+    },
     tokens: [{
         token: {
             type: String,
