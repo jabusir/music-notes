@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    friendRequests: [{
+        type: mongoose.Schema.Types.ObjectId,
+    }],
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
     }],
