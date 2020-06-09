@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     email: {
         type: String,
@@ -33,7 +34,10 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    friendRequests: [{
+    friendRequestsSent: [{
+        type: mongoose.Schema.Types.ObjectId,
+    }],
+    friendRequestsRecieved: [{
         type: mongoose.Schema.Types.ObjectId,
     }],
     friends: [{

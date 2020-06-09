@@ -3,11 +3,12 @@ const User = require('../models/user')
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
-router.get('/friends/add/:id', async (req, res) => {
+router.post('/friends/add/:id', async (req, res) => {
     const _id = req.params.id
-    const sender = req.body.senderId
+    const senderId = req.body.senderId
     try {
-        const user = await User.findOneAndUpdate({ _id }, { $push: { friendRequests: [sender] } })
+        let user = await User.findOneAndUpdate({ _id }, { $push: { friendRequestsRecieved: [senderId] } })
+        const sender = await User.findByIdAndUpdate({ _id: senderId }, { $push: { friendRequestsSent: [_id] } })
         user.save()
         res.status(201).send({ user })
     } catch (e) {
