@@ -8,7 +8,7 @@ router.post('/friends/add/:id', async (req, res) => {
     const senderId = req.body.senderId
     try {
         let user = await User.findByIdAndUpdate({ _id }, { $push: { friendRequestsRecieved: [senderId] } })
-        const sender = await User.findByIdAndUpdate({ _id: senderId }, { $push: { friendRequestsSent: [_id] } })
+        let sender = await User.findByIdAndUpdate({ _id: senderId }, { $push: { friendRequestsSent: [_id] } })
         await sender.save()
         await user.save()
         res.status(201).send({ user })
@@ -18,12 +18,12 @@ router.post('/friends/add/:id', async (req, res) => {
 
 })
 
-router.post('/friends/accept/', async (req, res) => {
+router.post('/friends/accept', async (req, res) => {
     const { senderId, _id } = req.body
     try {
         let user = await User.findByIdAndUpdate({ _id }, { $pullAll: { friendRequestsRecieved: [senderId] }, $push: { friends: [senderId] } })
-        await user.save()
         let sender = await User.findByIdAndUpdate({ _id: senderId }, { $pullAll: { friendRequestsSent: [_id] }, $push: { friends: [_id] } })
+        await user.save()
         await sender.save()
 
         console.log(user, sender)
@@ -35,7 +35,7 @@ router.post('/friends/accept/', async (req, res) => {
 
 })
 
-router.post('/friends/decline/', async (req, res) => {
+router.post('/friends/decline', async (req, res) => {
     const { senderId, _id } = req.body
     try {
         let user = await User.findByIdAndUpdate({ _id }, { $pullAll: { friendRequestsRecieved: [senderId] } })
