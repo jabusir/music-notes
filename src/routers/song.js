@@ -1,83 +1,90 @@
 const express = require('express')
 const Song = require('../models/song')
+const User = require('../models/user');
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
-router.post('/tasks', auth, async (req, res) => {
-    //const task = new Task(req.body)
-    const task = new Task({
+router.get('/songsRecieved', async (req, res) => {
+    try {
+        const songs = await User.find({}, 'songsRecieved')
+        res.status(201).send(songs)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/songsLiked', async (req, res) => {
+    try {
+        const songs = await User.find({}, 'songsLiked')
+        res.status(201).send(songs)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/songsPinned', async (req, res) => {
+    try {
+        const songs = await User.find({}, 'songsPinned')
+        res.status(201).send(songs)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/songsSuggested', async (req, res) => {
+    try {
+        const songs = await User.find({}, 'songsSuggested')
+        res.status(201).send(songs)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/songsDisliked', async (req, res) => {
+    try {
+        const songs = await User.find({}, 'songsDisliked')
+        res.status(201).send(songs)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.post('/recommend/:friendId', auth, async (req, res) => {
+    //must be friends
+    const friendId = req.params.friendId
+    const userId = req.user._id
+    const song = new Song({
         ...req.body,
-        owner: req.user._id
+        suggestor: userId,
+        owner: friendId
     })
-
     try {
-        await task.save()
-        res.status(201).send(task)
-    } catch (e) {
-        res.status(400).send()
-    }
-})
-
-router.get('/tasks', async (req, res) => {
-    try {
-        const tasks = await Task.find({})
-        res.send(tasks)
-    } catch (e) {
+        const friend = await User.findByIdAndUpdate({ _id: friendId }, { $push: { songsRecieved: [song._id] } })
+        const user = await User.findByIdAndUpdate({ _id: userId }, { $push: { songsSuggested: [song._id] } })
+        await friend.save()
+        await user.save()
+        res.status(200).send({ user })
+    } catch {
         res.status(500).send()
     }
 })
 
-router.get('/tasks/:id', async (req, res) => {
-    const _id = req.params.id
-
+router.post('/songs/like/:songId', auth, async (req, res) => {
+    const likedSongId = req.params.songId
     try {
-        const task = await Task.findById(_id)
-        if (!task) {
-            return res.status(404).send()
-        }
-
-        res.send(task)
-    } catch (e) {
+        const user = await User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [likedSongId] }, $push: { songsLiked: [likedSongId] } })
+        res.status(200).send({ user })
+    } catch {
         res.status(500).send()
     }
 })
 
-router.patch('/tasks/:id', async (req, res) => {
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['desc', 'completed']
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-
-    if (!isValidOperation) {
-        return res.status(400).send({ error: 'Invalid updates!' })
-    }
-
+router.post('/songs/dislike/:songId', auth, async (req, res) => {
+    const dislikedSongId = req.params.songId
     try {
-        // const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
-        const task = await Task.findById(req.params.id)
-
-        updates.forEach((update) => task[update] = req.body[update])
-        await save()
-
-        if (!task) {
-            res.status(404).send()
-        }
-
-        res.send(task)
-    } catch (e) {
-        res.status(500).send()
-    }
-})
-
-router.delete('/tasks/:id', async (req, res) => {
-    try {
-        const task = await Task.findByIdAndDelete(req.params.id)
-
-        if (!task) {
-            return res.status(404).send()
-        }
-
-        res.send(task)
-    } catch (e) {
+        const user = User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [dislikedSongId] }, $push: { songsDisliked: [dislikedSongId] } })
+        res.status(200).send({ user })
+    } catch {
         res.status(500).send()
     }
 })
