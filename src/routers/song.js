@@ -3,7 +3,7 @@ const Song = require('../models/song')
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
-router.post('/tasks', auth, async (req, res) => {
+router.post('/songs/like', auth, async (req, res) => {
     //const task = new Task(req.body)
     const task = new Task({
         ...req.body,

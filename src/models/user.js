@@ -47,19 +47,24 @@ const userSchema = new mongoose.Schema({
         ref: 'User'
     }],
     songsRecieved: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     songsGiven: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     songsLiked: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     songsDisliked: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     savedSongs: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     clout: {
         type: Number,
