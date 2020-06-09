@@ -36,12 +36,15 @@ const userSchema = new mongoose.Schema({
     },
     friendRequestsSent: [{
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
     friendRequestsRecieved: [{
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }],
     songsRecieved: [{
         type: mongoose.Schema.Types.ObjectId
