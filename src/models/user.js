@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     email: {
         type: String,
@@ -33,12 +34,34 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
+    friendRequestsSent: [{
+        type: mongoose.Schema.Types.ObjectId,
+    }],
+    friendRequestsRecieved: [{
+        type: mongoose.Schema.Types.ObjectId,
+    }],
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
+    }],
+    songsRecieved: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
+    songsGiven: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
+    songsLiked: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
+    songsDisliked: [{
+        type: mongoose.Schema.Types.ObjectId
     }],
     savedSongs: [{
         type: mongoose.Schema.Types.ObjectId
     }],
+    clout: {
+        type: Number,
+        default: 0
+    },
     tokens: [{
         token: {
             type: String,
