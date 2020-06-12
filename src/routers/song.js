@@ -4,26 +4,30 @@ const User = require('../models/user');
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
-router.get('/songsRecieved', async (req, res) => {
+router.get('/songsRecieved', auth, async (req, res) => {
     try {
-        const songs = await User.find({}, 'songsRecieved')
+        const userId = req.user._id
+        const songs = await User.findOne({ _id: userId }).populate({ path: 'songsRecieved' })
+        console.log(songs)
         res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
     }
 })
 
-router.get('/songsLiked', async (req, res) => {
+router.get('/songsLiked', auth, async (req, res) => {
     try {
-        const songs = await User.find({}, 'songsLiked')
+        const userId = req.user._id
+        const songs = await User.find({ userId }, 'songsLiked')
         res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
     }
 })
 
-router.get('/songsPinned', async (req, res) => {
+router.get('/songsPinned', auth, async (req, res) => {
     try {
+        const userId = req.user._id
         const songs = await User.find({}, 'songsPinned')
         res.status(201).send(songs)
     } catch (e) {
@@ -31,8 +35,9 @@ router.get('/songsPinned', async (req, res) => {
     }
 })
 
-router.get('/songsSuggested', async (req, res) => {
+router.get('/songsSuggested', auth, async (req, res) => {
     try {
+        const userId = req.user._id
         const songs = await User.find({}, 'songsSuggested')
         res.status(201).send(songs)
     } catch (e) {
@@ -40,8 +45,9 @@ router.get('/songsSuggested', async (req, res) => {
     }
 })
 
-router.get('/songsDisliked', async (req, res) => {
+router.get('/songsDisliked', auth, async (req, res) => {
     try {
+        const userId = req.user._id
         const songs = await User.find({}, 'songsDisliked')
         res.status(201).send(songs)
     } catch (e) {
@@ -50,15 +56,17 @@ router.get('/songsDisliked', async (req, res) => {
 })
 
 router.post('/recommend/:friendId', auth, async (req, res) => {
-    //must be friends
+    //have to code the chunk where it makes sure they're friends
     const friendId = req.params.friendId
     const userId = req.user._id
-    const song = new Song({
-        ...req.body,
-        suggestor: userId,
-        owner: friendId
-    })
     try {
+        const song = new Song({
+            ...req.body,
+            suggestor: userId,
+            owner: friendId
+        })
+        song.save()
+        //make sure the song doesn't already exist in any of the friend's list
         const friend = await User.findByIdAndUpdate({ _id: friendId }, { $push: { songsRecieved: [song._id] } })
         const user = await User.findByIdAndUpdate({ _id: userId }, { $push: { songsSuggested: [song._id] } })
         await friend.save()
