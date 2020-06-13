@@ -1,83 +1,106 @@
 const express = require('express')
 const Song = require('../models/song')
+const User = require('../models/user');
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
-router.post('/songs/like', auth, async (req, res) => {
-    //const task = new Task(req.body)
-    const task = new Task({
-        ...req.body,
-        owner: req.user._id
-    })
-
+router.get('/songsRecieved', auth, async (req, res) => {
     try {
-        await task.save()
-        res.status(201).send(task)
-    } catch (e) {
-        res.status(400).send()
-    }
-})
-
-router.get('/tasks', async (req, res) => {
-    try {
-        const tasks = await Task.find({})
-        res.send(tasks)
+        const userId = req.user._id
+        const songs = await User.findOne({ _id: userId }, 'songsRecieved').populate({ path: 'songsRecieved' })
+        console.log(songs)
+        res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
     }
 })
 
-router.get('/tasks/:id', async (req, res) => {
-    const _id = req.params.id
-
+router.get('/songsLiked', auth, async (req, res) => {
     try {
-        const task = await Task.findById(_id)
-        if (!task) {
-            return res.status(404).send()
-        }
-
-        res.send(task)
+        const userId = req.user._id
+        const songs = await User.find({ _id: userId }, 'songsLiked').populate({ path: 'songsLiked' })
+        res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
     }
 })
 
-router.patch('/tasks/:id', async (req, res) => {
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['desc', 'completed']
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
-
-    if (!isValidOperation) {
-        return res.status(400).send({ error: 'Invalid updates!' })
-    }
-
+router.get('/songsPinned', auth, async (req, res) => {
     try {
-        // const task = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
-        const task = await Task.findById(req.params.id)
-
-        updates.forEach((update) => task[update] = req.body[update])
-        await save()
-
-        if (!task) {
-            res.status(404).send()
-        }
-
-        res.send(task)
+        const userId = req.user._id
+        const songs = await User.find({ _id: userId }, 'songsPinned').populate({ path: 'songsPinned' })
+        res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
     }
 })
 
-router.delete('/tasks/:id', async (req, res) => {
+router.get('/songsSuggested', auth, async (req, res) => {
     try {
-        const task = await Task.findByIdAndDelete(req.params.id)
-
-        if (!task) {
-            return res.status(404).send()
-        }
-
-        res.send(task)
+        const userId = req.user._id
+        const songs = await User.find({ _id: userId }, 'songsSuggested').populate({ path: 'songsSuggested' })
+        res.status(201).send(songs)
     } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/songsDisliked', auth, async (req, res) => {
+    try {
+        const userId = req.user._id
+        const songs = await User.find({ _id: userId }, 'songsDisliked').populate({ path: 'songsDisliked' })
+        res.status(201).send(songs)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.post('/recommend/:friendId', auth, async (req, res) => {
+    const friendId = req.params.friendId
+    const userId = req.user._id
+    try {
+        const song = new Song({
+            ...req.body,
+            suggestor: userId,
+            owner: friendId
+        })
+        song.save()
+        const friend = await User.findByIdAndUpdate({ _id: friendId }, { $push: { songsRecieved: [song._id] } })
+        const user = await User.findByIdAndUpdate({ _id: userId }, { $push: { songsSuggested: [song._id] } })
+        await friend.save()
+        await user.save()
+        res.status(200).send({ user })
+    } catch {
+        res.status(500).send()
+    }
+})
+
+router.post('/songs/like/:songId', auth, async (req, res) => {
+    const likedSongId = req.params.songId
+    try {
+        const user = await User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [likedSongId] }, $push: { songsLiked: [likedSongId] } })
+        res.status(200).send({ user })
+    } catch {
+        res.status(500).send()
+    }
+})
+
+router.post('/songs/dislike/:songId', auth, async (req, res) => {
+    const dislikedSongId = req.params.songId
+    try {
+        const user = User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [dislikedSongId] }, $push: { songsDisliked: [dislikedSongId] } })
+        res.status(200).send({ user })
+    } catch {
+        res.status(500).send()
+    }
+})
+
+router.post('/songs/pin/:songId', auth, async (req, res) => {
+    const dislikedSongId = req.params.songId
+    try {
+        const user = User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [dislikedSongId] }, $push: { songsPinned: [dislikedSongId] } })
+        res.status(200).send({ user })
+    } catch {
         res.status(500).send()
     }
 })

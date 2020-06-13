@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const Song = require('./song');
 
 
 const userSchema = new mongoose.Schema({
@@ -54,6 +55,9 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Song'
     }],
+    songsSuggested: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
     songsLiked: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Song'
@@ -62,14 +66,14 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Song'
     }],
+
     savedSongs: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Song'
     }],
-    clout: {
-        type: Number,
-        default: 0
-    },
+    songsPinned: [{
+        type: mongoose.Schema.Types.ObjectId
+    }],
     tokens: [{
         token: {
             type: String,
@@ -91,6 +95,7 @@ userSchema.methods.toJSON = function () {
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
+    //switch to env variable before production
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
 
     user.tokens = user.tokens.concat({ token })
