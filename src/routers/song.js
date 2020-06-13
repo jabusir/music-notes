@@ -7,7 +7,7 @@ const router = new express.Router()
 router.get('/songsRecieved', auth, async (req, res) => {
     try {
         const userId = req.user._id
-        const songs = await User.findOne({ _id: userId }).populate({ path: 'songsRecieved' })
+        const songs = await User.findOne({ _id: userId }, 'songsRecieved').populate({ path: 'songsRecieved' })
         console.log(songs)
         res.status(201).send(songs)
     } catch (e) {
@@ -18,7 +18,7 @@ router.get('/songsRecieved', auth, async (req, res) => {
 router.get('/songsLiked', auth, async (req, res) => {
     try {
         const userId = req.user._id
-        const songs = await User.find({ userId }, 'songsLiked')
+        const songs = await User.find({ _id: userId }, 'songsLiked').populate({ path: 'songsLiked' })
         res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
@@ -28,7 +28,7 @@ router.get('/songsLiked', auth, async (req, res) => {
 router.get('/songsPinned', auth, async (req, res) => {
     try {
         const userId = req.user._id
-        const songs = await User.find({}, 'songsPinned')
+        const songs = await User.find({ _id: userId }, 'songsPinned').populate({ path: 'songsPinned' })
         res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
@@ -38,7 +38,7 @@ router.get('/songsPinned', auth, async (req, res) => {
 router.get('/songsSuggested', auth, async (req, res) => {
     try {
         const userId = req.user._id
-        const songs = await User.find({}, 'songsSuggested')
+        const songs = await User.find({ _id: userId }, 'songsSuggested').populate({ path: 'songsSuggested' })
         res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
@@ -48,7 +48,7 @@ router.get('/songsSuggested', auth, async (req, res) => {
 router.get('/songsDisliked', auth, async (req, res) => {
     try {
         const userId = req.user._id
-        const songs = await User.find({}, 'songsDisliked')
+        const songs = await User.find({ _id: userId }, 'songsDisliked').populate({ path: 'songsDisliked' })
         res.status(201).send(songs)
     } catch (e) {
         res.status(500).send()
@@ -56,7 +56,6 @@ router.get('/songsDisliked', auth, async (req, res) => {
 })
 
 router.post('/recommend/:friendId', auth, async (req, res) => {
-    //have to code the chunk where it makes sure they're friends
     const friendId = req.params.friendId
     const userId = req.user._id
     try {
@@ -66,7 +65,6 @@ router.post('/recommend/:friendId', auth, async (req, res) => {
             owner: friendId
         })
         song.save()
-        //make sure the song doesn't already exist in any of the friend's list
         const friend = await User.findByIdAndUpdate({ _id: friendId }, { $push: { songsRecieved: [song._id] } })
         const user = await User.findByIdAndUpdate({ _id: userId }, { $push: { songsSuggested: [song._id] } })
         await friend.save()
@@ -91,6 +89,16 @@ router.post('/songs/dislike/:songId', auth, async (req, res) => {
     const dislikedSongId = req.params.songId
     try {
         const user = User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [dislikedSongId] }, $push: { songsDisliked: [dislikedSongId] } })
+        res.status(200).send({ user })
+    } catch {
+        res.status(500).send()
+    }
+})
+
+router.post('/songs/pin/:songId', auth, async (req, res) => {
+    const dislikedSongId = req.params.songId
+    try {
+        const user = User.findByIdAndUpdate({ _id: req.user._id }, { $pullAll: { songsRecieved: [dislikedSongId] }, $push: { songsPinned: [dislikedSongId] } })
         res.status(200).send({ user })
     } catch {
         res.status(500).send()

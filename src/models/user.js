@@ -63,10 +63,6 @@ const userSchema = new mongoose.Schema({
     songsPinned: [{
         type: mongoose.Schema.Types.ObjectId
     }],
-    clout: {
-        type: Number,
-        default: 0
-    },
     tokens: [{
         token: {
             type: String,
@@ -88,6 +84,7 @@ userSchema.methods.toJSON = function () {
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
+    //switch to env variable before production
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismynewcourse')
 
     user.tokens = user.tokens.concat({ token })

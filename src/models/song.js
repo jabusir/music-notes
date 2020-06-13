@@ -24,6 +24,10 @@ const Song = mongoose.model('Song', new mongoose.Schema({
     },
     spotify_id: {
         type: String
+    },
+    times_suggested: {
+        type: Number,
+        default: 0
     }
 }))
 
