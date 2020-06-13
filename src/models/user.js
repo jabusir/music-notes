@@ -51,14 +51,25 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Song'
     }],
+    songsGiven: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
+    }],
     songsSuggested: [{
         type: mongoose.Schema.Types.ObjectId
     }],
     songsLiked: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     songsDisliked: [{
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
+    }],
+
+    savedSongs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Song'
     }],
     songsPinned: [{
         type: mongoose.Schema.Types.ObjectId
