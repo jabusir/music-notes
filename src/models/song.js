@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-const Song = mongoose.model('Song', {
+const Song = mongoose.model('Song', new mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -21,7 +21,14 @@ const Song = mongoose.model('Song', {
     },
     playback_uri: {
         type: String
+    },
+    spotify_id: {
+        type: String
+    },
+    times_suggested: {
+        type: Number,
+        default: 0
     }
-})
+}))
 
 module.exports = Song
