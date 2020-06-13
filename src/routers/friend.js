@@ -3,6 +3,16 @@ const User = require('../models/user')
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
+router.get('/friends', auth, async (req, res) => {
+    const { _id } = req.user
+    try {
+        const friends = await User.find({ _id }, 'friends').populate({ path: "friends" })
+        res.status(200).send(friends)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
 router.post('/friends/add/:id', auth, async (req, res) => {
     const _id = req.params.id
     const senderId = req.user._id
