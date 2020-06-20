@@ -12,10 +12,14 @@
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.3.4",
     "mongoose": "^5.7.11",
+    "node-fetch": "^2.6.0",
+    "urijs": "^1.19.2",
     "validator": "^12.0.0"
   },
   "devDependencies": {

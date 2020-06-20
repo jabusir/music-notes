@@ -5,9 +5,9 @@ const router = new express.Router()
 const jwt = require('jsonwebtoken')
 
 router.post('/users', async (req, res) => {
-    const user = new User(req.body)
 
     try {
+        const user = new User(req.body)
         await user.save()
         const token = await user.generateAuthToken()
         res.status(201).send({ user, token })
@@ -21,9 +21,9 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         const token = await user.generateAuthToken()
-        res.send({ user, token })
+        res.status(200).send({ user, token })
     } catch (e) {
-        res.status(400)
+        res.status(500).send(e)
     }
 })
 
