@@ -33,7 +33,7 @@ router.get('/token', async (req, res) => {
             grant_type: 'client_credentials',
         }),
         headers: {
-            'Authorization': 'Basic' + encoded,
+            'Authorization': 'Basic ' + encoded,
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
         },
     });
