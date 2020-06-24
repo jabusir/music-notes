@@ -53,6 +53,21 @@ router.get('/users/me', auth, async (req, res) => {
     res.send(req.user)
 })
 
+router.get('/users/friends', auth, async (req, res) => {
+    const {_id} = req.user
+    try {
+        const friendsPayload = await User.find({_id}).populate('friends').populate('friendRequestsRecieved').populate('friendRequestsSent')
+        const friends = friendsPayload.map((friend) => 
+        ({
+            _id: friend._id,
+            username: friend.username
+        }))
+        res.status(200).send(friends)
+    } catch (e) {
+
+    }
+})
+
 
 router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
